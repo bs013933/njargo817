@@ -1,0 +1,24 @@
+name: Upstream Sync
+
+on:
+  schedule:
+    # 每天 UTC 0 点（北京时间早 8 点）自动执行一次
+    - cron: '0 0 * * *'
+    # 如果需要每 6 小时执行一次，可改为: '0 */6 * * *'
+  workflow_dispatch: # 支持在 GitHub 页面上手动点击运行
+
+jobs:
+  sync_latest_from_upstream:
+    name: Sync latest commits from upstream repo
+    runs-on: ubuntu-latest
+    if: ${{ github.event.repository.fork }}
+
+    steps:
+      - name: Checkout target repo
+        uses: actions/checkout@v4
+
+      - name: Sync upstream changes
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh repo sync ${{ github.repository }} -b main --force
